@@ -1,23 +1,5 @@
 const rp = require('request-promise');
 const cheerio = require('cheerio');
-/* const options = {
-  uri: `https://weather.gc.ca/city/pages/on-54_metric_e.html`,
-  transform: function (body) {
-    return cheerio.load(body);
-  }
-};
-
-rp(options)
-  .then(($) => {
-	let temp_string = $('.pdg-tp-0').first().children('td').eq(1).text();
-	let start_index = temp_string.lastIndexOf("Low");
-	let temperature = temp_string.slice(start_index, -1);
-	console.log(temperature);
-  })
-  .catch((err) => {
-    console.log(err);
-  }); */
-
 
 let cities = [
 	{
@@ -50,13 +32,7 @@ let cities = [
 	}
 ];
 
-let i = 0, x = cities.length;
-
-console.log("\nLoading Temperatures\n");
-
-while (i < x) {	
-	let city = cities[i];
-	
+async function getWeather(city){
 	var options = {
 	  uri: city.url,
 	  transform: function (body) {
@@ -64,7 +40,7 @@ while (i < x) {
 	  }
 	};
 	
-	rp(options)
+	await rp(options)
 	  .then(($) => {
 		let temp_string = $('.pdg-tp-0').first().children('td').eq(1).text();
 		let start_index = temp_string.lastIndexOf("Low");
@@ -74,7 +50,20 @@ while (i < x) {
 	  .catch((err) => {
 		console.log(err);
 	  });
-	  
-	  i++;
-}
+};
+
+
+let i = 0, x = cities.length;
+
+console.log("\nLoading Temperatures\n");
+
+(async() => {
+
+	while (i < x) {
+		
+		let city = cities[i];
+		await getWeather(city);
+		i++;
+	}
+})();
 
